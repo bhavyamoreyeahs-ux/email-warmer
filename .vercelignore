@@ -1,0 +1,15 @@
+# The Vercel CLI does NOT read .gitignore — it uploads everything not listed
+# here. Keep secrets, local data and build output out of deployments.
+.env
+.env.*
+!.env.example
+.data/
+.next/
+.next-build/
+node_modules/
+coverage/
+.claude/
+.vercel/
+*.pem
+*.key
+*.tsbuildinfo
