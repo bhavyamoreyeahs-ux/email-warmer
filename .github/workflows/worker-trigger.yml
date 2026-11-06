@@ -1,0 +1,40 @@
+# Runs QuikReach's background worker on Vercel Hobby, where Vercel Cron is
+# limited to once a day. Calls the secured endpoint, which processes due jobs
+# (mailbox syncs, scheduled scans, alert evaluation, notifications) for ~50 s.
+#
+# Setup (repository → Settings → Secrets and variables → Actions):
+#   secret   CRON_SECRET        same value as CRON_SECRET in Vercel
+#   variable QUIKREACH_APP_URL  e.g. https://quikreach.vercel.app
+#
+# Cost: on PRIVATE repos each run bills at least one Actions minute. Every
+# 30 minutes ≈ 1,440 min/month (within the free 2,000). Use "*/5 * * * *" for
+# near-real-time monitoring if the repo is public or you have spare minutes.
+name: QuikReach worker trigger
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions: {}
+
+concurrency:
+  group: quikreach-worker
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run one worker batch
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.QUIKREACH_APP_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ] || [ -z "$APP_URL" ]; then
+            echo "::warning::Set the CRON_SECRET secret and QUIKREACH_APP_URL variable to enable the worker trigger."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 90 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${APP_URL%/}/api/cron/worker"
