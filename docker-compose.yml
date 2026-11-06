@@ -1,0 +1,50 @@
+# Pilot stack. The image runs with NODE_ENV=production, so the full stack needs
+# a production-grade .env: an https:// APP_URL (TLS terminated by a reverse proxy
+# in front of `web`, see docs/deployment.md) and all required secrets — it will
+# refuse to start with the .env.example placeholders. For local development run
+# only the database (`docker compose up -d db`) and use the npm scripts.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: quikreach
+      POSTGRES_PASSWORD: quikreach_local_dev_only
+      POSTGRES_DB: quikreach
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quikreach"]
+      interval: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    command: ["npx", "tsx", "scripts/migrate.ts"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://quikreach:quikreach_local_dev_only@db:5432/quikreach
+    depends_on:
+      db: { condition: service_healthy }
+
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://quikreach:quikreach_local_dev_only@db:5432/quikreach
+      PORT: "3000"
+    ports: ["3020:3000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    command: ["npx", "tsx", "scripts/worker.ts"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://quikreach:quikreach_local_dev_only@db:5432/quikreach
+      QUIKREACH_SERVICE: quikreach-worker
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata:

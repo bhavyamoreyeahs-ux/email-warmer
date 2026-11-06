@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * QuikReach tokens — follow the QuikIT design system (Quikit Web DESIGN_SYSTEM.md):
+ * near-monochrome surfaces, role-based tokens, colour used sparingly. The product
+ * shell adds a dark navigation rail on light working surfaces.
+ * TODO(integration): replace with @quikit/ui/styles inside the QuikIT monorepo.
+ */
+:root {
+  --bg: #f4f3ef;
+  --panel-bg: #ffffff;
+  --panel-border: #e4e2dc;
+  --text-primary: #0f0f0f;
+  --text-muted: #5c5a55;
+  --rail-bg: #0c0c0c;
+  --accent-50: #eff5ff;
+  --accent-100: #dbe8fe;
+  --accent-500: #3b82f6;
+  --accent-600: #2563eb;
+  --accent-700: #1d4ed8;
+  /* Chart roles (dataviz reference palette, light). */
+  --chart-surface: #ffffff;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --grid: rgba(0, 0, 0, 0.08);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+body {
+  font-family: Gilroy, "Helvetica Neue", Arial, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 300;
+  padding: 0.5rem 1rem;
+  background: var(--accent-600);
+  color: #fff;
+  font-size: 0.875rem;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
