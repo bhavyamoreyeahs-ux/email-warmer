@@ -4,7 +4,7 @@
   "private": true,
   "description": "QuikReach \u2014 email-domain health, mailbox monitoring, deliverability diagnostics and campaign safety (QuikIT ecosystem).",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev -p 3020",
